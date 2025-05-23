@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Configurações básicas do documento -->
+  <meta charset="UTF-8">
+  <title>Exibidor de Números</title>
+  
+  <!-- CDNs necessários para usar React sem instalação local -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script> <!-- Biblioteca principal do React -->
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script> <!-- Integração com DOM -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script> <!-- Compilador Babel para JSX -->
+
+  <!-- Estilos CSS para a aplicação -->
+  <style>
+    body {
+      font-family: Arial, sans-serif; /* Fonte padrão */
+      padding: 20px; /* Espaçamento interno */
+      text-align: center; /* Centraliza conteúdo */
+    }
+    input {
+      padding: 10px; /* Espaçamento interno do input */
+      font-size: 18px; /* Tamanho da fonte */
+      margin: 20px; /* Margem externa */
+    }
+    .numero-exibido {
+      font-size: 48px; /* Tamanho grande para o número */
+      color: #2c3e50; /* Cor escura para melhor contraste */
+      margin-top: 20px; /* Espaço acima do número */
+    }
+  </style>
+</head>
+<body>
+  <!-- Container principal onde a aplicação React será montada -->
+  <div id="root"></div>
+
+  <!-- Script principal da aplicação em JSX (sintaxe do React) -->
+  <script type="text/babel">
+    // Componente principal da aplicação
+    function App() {
+      // Estado para armazenar o valor digitado
+      // useState retorna um array com [valor, funçãoParaAtualizar]
+      const [numero, setNumero] = React.useState('');
+
+      // Função para atualizar o estado quando o input muda
+      const handleChange = (event) => {
+        // Atualiza o estado com o valor atual do input
+        setNumero(event.target.value);
+      };
+
+      // Retorna a estrutura do componente (JSX)
+      return (
+        <div>
+          {/* Título da aplicação */}
+          <h1>Digite um número</h1>
+          
+          {/* Input controlado pelo estado */}
+          <input
+            type="text" // Tipo do input
+            value={numero} // Valor vinculado ao estado
+            onChange={handleChange} // Evento de mudança
+            placeholder="Digite aqui..." // Texto de exemplo
+          />
+          
+          {/* Área de exibição do número */}
+          <div className="numero-exibido">
+            {/* Exibe o número ou '0' se estiver vazio */}
+            {numero || '0'}
+          </div>
+        </div>
+      );
+    }
+
+    // Renderiza o componente App dentro da div com id 'root'
+    ReactDOM.render(
+      <App />, // Componente a ser renderizado
+      document.getElementById('root') // Elemento onde será renderizado
+    );
+  </script>
+</body>
+</html>

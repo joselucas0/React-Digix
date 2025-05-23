@@ -1,0 +1,29 @@
+<html lang="en">
+<head>
+    <title>Conceito 1 3xx</title>
+    <!-- crossorigin é um atributo que indica que o recurso deve ser carregado com credenciais (cookies, etc) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Transcompilador Babel para transformar JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        // Corrigido: Sintaxe JSX correta
+        let newElement = <h1>Olá Mundo</h1>;
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(newElement);
+    </script>
+
+    <div id="root2">
+        <h1>Olá Mundo 2</h1>
+    </div>
+    
+    <script type="text/javascript">
+        let elemento = document.getElementById('root2');
+        console.log(elemento); // Exemplo de uso
+    </script>
+</body>
+</html>

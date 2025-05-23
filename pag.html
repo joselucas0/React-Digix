@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React sem JSX - Cartões com Subtarefas</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <style>
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+    #root { padding: 2rem; overflow-x: auto; }
+    .board { display: flex; gap: 1rem; }
+    .card { background: #fff; padding: 1rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); flex: 0 0 300px; display: flex; flex-direction: column; }
+    .card-header { font-weight: bold; margin-bottom: 0.5rem; }
+    .subtask { background: #f9f9f9; padding: 0.5rem; margin-bottom: 0.5rem; border-radius: 4px; cursor: grab; }
+    .highlight { border: 2px dashed #4a90e2 !important; }
+    .add-subtask { display: flex; margin-top: auto; }
+    .add-subtask input { flex: 1; padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; margin-right: 0.5rem; }
+    .add-subtask button { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; background: #5aac44; color: #fff; cursor: pointer; }
+    .add-subtask button:hover { background: #519839; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    const { useState, useRef } = React;
+
+    function Subtask({ text, cardIdx, idx, onDragStart, onDragEnter }) {
+      return React.createElement(
+        'div',
+        {
+          className: 'subtask',
+          draggable: true,
+          onDragStart: e => onDragStart(e, cardIdx, idx),
+          onDragEnter: e => onDragEnter(e, cardIdx, idx)
+        },
+        text
+      );
+    }
+
+    function Card({ card, index, onSubtaskDragStart, onSubtaskDragEnter, onSubtaskDrop, onAddSubtask }) {
+      const [text, setText] = useState('');
+      function handleAdd() {
+        if (!text.trim()) return;
+        onAddSubtask(index, text);
+        setText('');
+      }
+      return React.createElement(
+        'div',
+        {
+          className: 'card',
+          onDragOver: e => e.preventDefault(),
+          onDrop: () => onSubtaskDrop(index, null)
+        },
+        React.createElement('div', { className: 'card-header' }, card.title),
+        card.subtasks.map((st, idx) => React.createElement(Subtask, {
+          key: idx,
+          text: st,
+          cardIdx: index,
+          idx,
+          onDragStart: onSubtaskDragStart,
+          onDragEnter: onSubtaskDragEnter
+        })),
+        React.createElement(
+          'div',
+          { className: 'add-subtask' },
+          React.createElement('input', {
+            type: 'text', value: text, placeholder: 'Nova subtarefa...', onChange: e => setText(e.target.value)
+          }),
+          React.createElement('button', { onClick: handleAdd }, 'Adicionar')
+        )
+      );
+    }
+
+    function Board() {
+      const [cards, setCards] = useState([
+        { title: 'Comprar Mantimentos', subtasks: ['Leite', 'Pão'] },
+        { title: 'Estudar React', subtasks: ['Hooks', 'Context API', 'Drag & Drop'] }
+      ]);
+      const dragItem = useRef({ card: null, idx: null });
+      const dragOverItem = useRef({ card: null, idx: null });
+
+      function onSubtaskDragStart(e, cardIdx, idx) {
+        dragItem.current = { cardIdx, idx };
+        e.dataTransfer.effectAllowed = 'move';
+      }
+
+      function onSubtaskDragEnter(e, cardIdx, idx) {
+        dragOverItem.current = { cardIdx, idx };
+        e.currentTarget.classList.add('highlight');
+      }
+
+      function onSubtaskDrop(destCardIdx, destIdx) {
+        const { cardIdx: srcCardIdx, idx: srcIdx } = dragItem.current;
+        const { cardIdx: overCardIdx, idx: overIdx } = dragOverItem.current;
+        if (srcCardIdx == null) return;
+        const newCards = JSON.parse(JSON.stringify(cards));
+        // Retira a subtarefa
+        const moved = newCards[srcCardIdx].subtasks.splice(srcIdx, 1)[0];
+        // Determina destino real
+        let targetCard = destCardIdx;
+        let targetIdx = (overCardIdx != null && overCardIdx === destCardIdx && overIdx != null)
+                        ? overIdx + ((srcCardIdx === overCardIdx && srcIdx < overIdx) ? 0 : 1)
+                        : newCards[destCardIdx].subtasks.length;
+        // Insere
+        newCards[targetCard].subtasks.splice(targetIdx, 0, moved);
+        setCards(newCards);
+        // Reset e limpa highlights
+        dragItem.current = { card: null, idx: null };
+        dragOverItem.current = { card: null, idx: null };
+        document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+      }
+
+      function onAddSubtask(cardIdx, text) {
+        const newCards = [...cards];
+        newCards[cardIdx].subtasks.push(text);
+        setCards(newCards);
+      }
+
+      return React.createElement(
+        'div',
+        { className: 'board' },
+        cards.map((card, idx) => React.createElement(Card, {
+          key: idx,
+          card,
+          index: idx,
+          onSubtaskDragStart,
+          onSubtaskDragEnter,
+          onSubtaskDrop,
+          onAddSubtask
+        }))
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(Board, null));
+  </script>
+</body>
+</html>

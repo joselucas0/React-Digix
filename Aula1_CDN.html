@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aula 1 - React CDN</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    button { margin: 5px; padding: 8px 12px; cursor: pointer; }
+    .tarefa { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .concluida { text-decoration: line-through; color: #888; }
+  </style>
+  
+  <!-- CDN React e Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    function App() {
+      // Estado do contador
+      const [contador, setContador] = React.useState(0);
+      
+      // Estado das tarefas
+      const [tarefas, setTarefas] = React.useState([]);
+      const [novaTarefa, setNovaTarefa] = React.useState('');
+
+      // Funções da lista de tarefas
+      const adicionarTarefa = () => {
+        if (novaTarefa.trim()) {
+          setTarefas([...tarefas, { texto: novaTarefa, concluida: false }]);
+          setNovaTarefa('');
+        }
+      };
+
+      const marcarTarefa = (index) => {
+        const novasTarefas = [...tarefas];
+        novasTarefas[index].concluida = !novasTarefas[index].concluida;
+        setTarefas(novasTarefas);
+      };
+
+      const removerTarefa = (index) => {
+        setTarefas(tarefas.filter((_, i) => i !== index));
+      };
+
+      return (
+        <div className="container">
+          {/* Saudação */}
+          <h1>Olá, João!</h1>
+
+          {/* Contador */}
+          <div id="contador-container">
+            <h2>Contador</h2>
+            <p id="contador-valor">{contador}</p>
+            <button onClick={() => setContador(c => c + 1)}>+1</button>
+            <button onClick={() => setContador(c => c - 1)}>-1</button>
+          </div>
+
+          {/* Lista de Tarefas */}
+          <div id="todo-container">
+            <h2>Lista de Tarefas</h2>
+            <input 
+              type="text" 
+              value={novaTarefa}
+              onChange={(e) => setNovaTarefa(e.target.value)}
+              placeholder="Nova tarefa"
+            />
+            <button onClick={adicionarTarefa}>Adicionar</button>
+            <div id="lista-tarefas">
+              {tarefas.map((tarefa, index) => (
+                <div key={index} className={`tarefa ${tarefa.concluida ? 'concluida' : ''}`}>
+                  <span>{tarefa.texto}</span>
+                  <button onClick={() => marcarTarefa(index)}>
+                    {tarefa.concluida ? 'Desmarcar' : 'Concluir'}
+                  </button>
+                  <button onClick={() => removerTarefa(index)}>🗑️</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>

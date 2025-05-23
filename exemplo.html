@@ -1,0 +1,81 @@
+<!--
+    exemplo.html
+
+    Este arquivo HTML demonstra um exemplo simples de um contador de cliques utilizando React.
+
+    Funcionalidades:
+    - Utiliza React 18 via CDN e Babel para transpilar JSX no navegador.
+    - Componente funcional ClickCounter com estado local (useState) para contar cliques.
+    - Exibe o número de vezes que o botão foi clicado.
+    - Estilização básica para centralizar o conteúdo e estilizar o botão.
+
+    Como funciona:
+    - O componente ClickCounter exibe um título, o número de cliques e um botão.
+    - Ao clicar no botão, o estado 'count' é incrementado em 1.
+    - O ReactDOM.render monta o componente dentro da div com id 'root'.
+
+    Dependências:
+    - React 18 (react.development.js)
+    - ReactDOM 18 (react-dom.development.js)
+    - Babel Standalone (babel.min.js) para suporte a JSX no navegador
+
+    Observação:
+    - Este exemplo é adequado para fins de aprendizado e prototipagem rápida.
+    - Para projetos reais, recomenda-se utilizar um bundler moderno (como Vite, Webpack ou Create React App).
+-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Contador de Cliques com React</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding-top: 50px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState } = React;
+
+      function ClickCounter() {
+        const [count, setCount] = useState(0);
+
+        return (
+          <div>
+            <h1>Contador de Cliques</h1>
+            <p>Você clicou {count} vezes</p>
+            <button onClick={() => setCount(count + 1)}>Incrementar</button>
+            <br />
+            <br/>
+            <button onClick={() => setCount(count - 1)}> Decrementar</button>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<ClickCounter />);
+    </script>
+  </body>
+</html>

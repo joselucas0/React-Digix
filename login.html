@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React sem JSX - Login e Cartões</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <style>
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .container { background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 360px; }
+    h1, h2 { margin-top: 0; color: #333; }
+    label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+    input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #ccc; border-radius: 4px; }
+    button { width: 100%; padding: 0.75rem; border: none; border-radius: 4px; background: #4a90e2; color: #fff; font-size: 1rem; cursor: pointer; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .board { display: flex; gap: 1rem; overflow-x: auto; padding: 1rem; }
+    .card { background: #fff; padding: 1rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); flex: 0 0 300px; display: flex; flex-direction: column; }
+    .card-header { font-weight: bold; margin-bottom: 0.5rem; }
+    .subtask { background: #f9f9f9; padding: 0.5rem; margin-bottom: 0.5rem; border-radius: 4px; cursor: grab; }
+    .highlight { border: 2px dashed #4a90e2 !important; }
+    .add-subtask { display: flex; margin-top: auto; }
+    .add-subtask input { flex: 1; padding: 0.4rem; border: 1px solid #ccc; border-radius: 4px; margin-right: 0.5rem; }
+    .add-subtask button { padding: 0.4rem 0.8rem; border: none; border-radius: 4px; background: #5aac44; color: #fff; cursor: pointer; }
+    .add-subtask button:hover { background: #519839; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    const { useState, useRef } = React;
+
+    function Login({ onLogin }) {
+      const [user, setUser] = useState('');
+      const [pass, setPass] = useState('');
+      function handleSubmit() {
+        if (user.trim() && pass.trim()) onLogin(user);
+      }
+      return React.createElement(
+        'div',
+        { className: 'container' },
+        React.createElement('h1', null, 'Login'),
+        React.createElement('label', null, 'Usuário'),
+        React.createElement('input', { type: 'text', value: user, onChange: e => setUser(e.target.value), placeholder: 'Digite seu usuário' }),
+        React.createElement('label', null, 'Senha'),
+        React.createElement('input', { type: 'password', value: pass, onChange: e => setPass(e.target.value), placeholder: 'Digite sua senha' }),
+        React.createElement('button', { onClick: handleSubmit, disabled: !user.trim() || !pass.trim() }, 'Entrar')
+      );
+    }
+
+    function Subtask({ text, cardIdx, idx, onDragStart, onDragEnter }) {
+      return React.createElement(
+        'div',
+        {
+          className: 'subtask',
+          draggable: true,
+          onDragStart: e => onDragStart(e, cardIdx, idx),
+          onDragEnter: e => onDragEnter(e, cardIdx, idx)
+        },
+        text
+      );
+    }
+
+    function Card({ card, index, onSubtaskDragStart, onSubtaskDragEnter, onSubtaskDrop, onAddSubtask }) {
+      const [text, setText] = useState('');
+      function handleAdd() {
+        if (!text.trim()) return;
+        onAddSubtask(index, text);
+        setText('');
+      }
+      return React.createElement(
+        'div',
+        { className: 'card', onDragOver: e => e.preventDefault(), onDrop: () => onSubtaskDrop(index) },
+        React.createElement('div', { className: 'card-header' }, card.title),
+        card.subtasks.map((st, idx) => React.createElement(Subtask, {
+          key: idx,
+          text: st,
+          cardIdx: index,
+          idx,
+          onDragStart: onSubtaskDragStart,
+          onDragEnter: onSubtaskDragEnter
+        })),
+        React.createElement(
+          'div',
+          { className: 'add-subtask' },
+          React.createElement('input', { type: 'text', value: text, placeholder: 'Nova subtarefa...', onChange: e => setText(e.target.value) }),
+          React.createElement('button', { onClick: handleAdd }, 'Adicionar')
+        )
+      );
+    }
+
+    function Board({ user }) {
+      const [cards, setCards] = useState([
+        { title: 'Bem vindo, ' + user, subtasks: ["Isso é seu Kanban"] },
+        { title: 'Comprar Mantimentos', subtasks: ['Leite', 'Pão'] },
+        { title: 'Estudar React', subtasks: ['Hooks', 'Context API', 'Drag & Drop'] }
+      ]);
+      const dragItem = useRef({ card: null, idx: null });
+      const dragOverItem = useRef({ card: null, idx: null });
+
+      function onSubtaskDragStart(e, cardIdx, idx) {
+        dragItem.current = { cardIdx, idx };
+        e.dataTransfer.effectAllowed = 'move';
+      }
+      function onSubtaskDragEnter(e, cardIdx, idx) {
+        dragOverItem.current = { cardIdx, idx };
+        e.currentTarget.classList.add('highlight');
+      }
+      function onSubtaskDrop(destCardIdx) {
+        const { cardIdx: srcCardIdx, idx: srcIdx } = dragItem.current;
+        const { cardIdx: overCardIdx, idx: overIdx } = dragOverItem.current;
+        if (srcCardIdx == null) return;
+        const newCards = JSON.parse(JSON.stringify(cards));
+        const moved = newCards[srcCardIdx].subtasks.splice(srcIdx, 1)[0];
+        const insertIdx = (overCardIdx === destCardIdx && overIdx != null)
+                        ? overIdx + (srcCardIdx === destCardIdx && srcIdx < overIdx ? 0 : 1)
+                        : newCards[destCardIdx].subtasks.length;
+        newCards[destCardIdx].subtasks.splice(insertIdx, 0, moved);
+        setCards(newCards);
+        dragItem.current = { card: null, idx: null };
+        dragOverItem.current = { card: null, idx: null };
+        document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+      }
+
+      function onAddSubtask(cardIdx, text) {
+        const newCards = [...cards]; newCards[cardIdx].subtasks.push(text); setCards(newCards);
+      }
+
+      return React.createElement(
+        'div',
+        { className: 'container', style: { display: 'block', height: '100%', width: '100%', overflow: 'auto' } },
+        React.createElement('h2', null, 'Quadro de Tarefas'),
+        React.createElement('div', { className: 'board' },
+          cards.map((card, idx) => React.createElement(Card, {
+            key: idx, card, index: idx,
+            onSubtaskDragStart, onSubtaskDragEnter, onSubtaskDrop, onAddSubtask
+          }))
+        )
+      );
+    }
+
+    function App() {
+      const [loggedUser, setLoggedUser] = useState(null);
+      return loggedUser
+        ? React.createElement(Board, { user: loggedUser })
+        : React.createElement(Login, { onLogin: setLoggedUser });
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App, null));
+  </script>
+</body>
+</html>
