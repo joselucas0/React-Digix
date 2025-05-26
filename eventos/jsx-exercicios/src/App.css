@@ -1,0 +1,111 @@
+/* Reset completo e configurações de altura */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container principal */
+.app-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Cabeçalho ocupando largura total */
+.app-header {
+  background: #4a6bdf;
+  color: white;
+  padding: 1.5rem;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+  width: 100vw;
+  position: relative;
+  margin-left: 15px;
+}
+
+/* Layout principal expandindo 100% */
+.main-content-horizontal {
+  flex: 1;
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Coluna esquerda fixa */
+.left-column {
+  flex: 0 0 350px;
+  position: sticky;
+  top: 2rem;
+  height: fit-content;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Coluna direita expansível */
+.right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-width: 0;
+}
+
+/* Cards ocupando 100% da coluna */
+.section-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  height: 100%;
+}
+
+/* Elementos do perfil */
+.foto-perfil {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 1.5rem;
+  display: block;
+  border: 4px solid #e9ecef;
+}
+
+/* Rodapé fixo na base */
+.app-footer {
+  background: #343a40;
+  color: white;
+  text-align: center;
+  padding: 1.5rem;
+  width: 100vw;
+  position: relative;
+  left: calc(-50vw + 50%);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .main-content-horizontal {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .left-column {
+    position: static;
+    flex: 1;
+  }
+}
